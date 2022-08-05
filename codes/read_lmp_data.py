@@ -301,39 +301,76 @@ class Body(Header):
 
     def get_atoms(self, line) -> None:
         # stting the nth row of the dictionary
-        if 'Atoms' not in line:
+        style: str  # Style of the LAMMPS atoms wild, Atoms, Bonds
+        q_flag: bool = False  # if there are charges in columns
+        if 'Atoms' in line:
+            style = self.get_atom_style(line)
+            if style == 'full':
+                q_flag = True
+        else:
             line = line.split()
             line = [item for item in line if item]
             atom_id = int(line[0])
             i_mol = int(line[1])
             i_typ = int(line[2])
-            i_charge = float(line[3])
-            i_x = float(line[4])
-            i_y = float(line[5])
-            i_z = float(line[6])
+            if q_flag:
+                i_charge = float(line[3])
+                i_col = 3
+            else:
+                i_col = 2
+            i_x = float(line[i_col + 1])
+            i_y = float(line[i_col + 2])
+            i_z = float(line[i_col + 3])
             i_name = self.Names[i_typ]
             try:
-                i_nx = int(line[7])
-                i_ny = int(line[8])
-                i_nz = int(line[9])
+                i_nx = int(line[i_col + 4])
+                i_ny = int(line[i_col + 5])
+                i_nz = int(line[i_col + 6])
             except (ValueError, IndexError) as e:
                 i_nx = 0
                 i_ny = 0
                 i_nz = 0
-            self.Atoms[atom_id] = dict(
-                                        atom_id=atom_id,
-                                        mol=i_mol,
-                                        typ=i_typ,
-                                        charge=i_charge,
-                                        x=i_x,
-                                        y=i_y,
-                                        z=i_z,
-                                        nx=i_nx,
-                                        ny=i_ny,
-                                        nz=i_nz,
-                                        cmt='#',
-                                        name=i_name
-                                       )
+            if q_flag:
+                self.Atoms[atom_id] = dict(
+                                           atom_id=atom_id,
+                                           mol=i_mol,
+                                           typ=i_typ,
+                                           charge=i_charge,
+                                           x=i_x,
+                                           y=i_y,
+                                           z=i_z,
+                                           nx=i_nx,
+                                           ny=i_ny,
+                                           nz=i_nz,
+                                           cmt='#',
+                                           name=i_name
+                                          )
+            else:
+                self.Atoms[atom_id] = dict(
+                                           atom_id=atom_id,
+                                           mol=i_mol,
+                                           typ=i_typ,
+                                           x=i_x,
+                                           y=i_y,
+                                           z=i_z,
+                                           nx=i_nx,
+                                           ny=i_ny,
+                                           nz=i_nz,
+                                           cmt='#',
+                                           name=i_name
+                                          )
+
+    def get_atom_style(self, line: str) -> str:
+        """return atom style for the atoms informations
+            bond: there is no charges for the system
+            full: with charge column
+        """
+        style: str
+        style = line.split('#')[1].strip()
+        if style:
+            return style
+        else:
+            return 'full'
 
     def get_velocities(self, line) -> None:
         # stting the nth row of the dictionary

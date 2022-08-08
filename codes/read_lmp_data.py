@@ -251,7 +251,7 @@ class Body(Header):
 
     def __init__(self, infile) -> None:
         super().__init__(infile)
-        self.infile: typing.IO = infile
+        self.infile: str = infile  # name for the IO file
         self.read_body()
 
     def read_body(self):
@@ -259,6 +259,7 @@ class Body(Header):
             = dict(), dict(), dict(), dict(), dict()
         Atoms, Velocities, Bonds, Angles, Dihedrals\
             = False, False, False, False, False
+        self.q_flag: bool = False  # if there are charges in columns
 
         with open(self.infile, 'r') as f:
             while True:
@@ -266,28 +267,29 @@ class Body(Header):
                 if line.strip().startswith('Atoms'):
                     Atoms, Velocities, Bonds, Angles, Dihedrals\
                         = True, False, False, False, False
-                if line.strip().startswith('Velocities'):
+                    self.q_flag = self.get_atom_style(line)
+                elif line.strip().startswith('Velocities'):
                     Atoms, Velocities, Bonds, Angles, Dihedrals\
                         = False, True, False, False, False
-                if line.strip().startswith('Bonds'):
+                elif line.strip().startswith('Bonds'):
                     Atoms, Velocities, Bonds, Angles, Dihedrals\
                         = False, False, True, False, False
-                if line.strip().startswith('Angles'):
+                elif line.strip().startswith('Angles'):
                     Atoms, Velocities, Bonds, Angles, Dihedrals\
                         = False, False, False, True, False
-                if line.strip().startswith('Dihedrals'):
+                elif line.strip().startswith('Dihedrals'):
                     Atoms, Velocities, Bonds, Angles, Dihedrals\
                         = False, False, False, False, True
-                if line.strip():
+                elif line.strip():
                     if Atoms:
                         self.get_atoms(line.strip())
-                    if Velocities:
+                    elif Velocities:
                         self.get_velocities(line.strip())
-                    if Bonds:
+                    elif Bonds:
                         self.get_bonds(line.strip())
-                    if Angles:
+                    elif Angles:
                         self.get_angles(line.strip())
-                    if Dihedrals:
+                    elif Dihedrals:
                         self.get_dihedrals(line.strip())
                 if not line:
                     break
@@ -301,19 +303,13 @@ class Body(Header):
 
     def get_atoms(self, line) -> None:
         # stting the nth row of the dictionary
-        style: str  # Style of the LAMMPS atoms wild, Atoms, Bonds
-        q_flag: bool = False  # if there are charges in columns
-        if 'Atoms' in line:
-            style = self.get_atom_style(line)
-            if style == 'full':
-                q_flag = True
-        else:
+        if 'Atoms' not in line:
             line = line.split()
             line = [item for item in line if item]
             atom_id = int(line[0])
             i_mol = int(line[1])
             i_typ = int(line[2])
-            if q_flag:
+            if self.q_flag:
                 i_charge = float(line[3])
                 i_col = 3
             else:
@@ -330,7 +326,7 @@ class Body(Header):
                 i_nx = 0
                 i_ny = 0
                 i_nz = 0
-            if q_flag:
+            if self.q_flag:
                 self.Atoms[atom_id] = dict(
                                            atom_id=atom_id,
                                            mol=i_mol,
@@ -368,9 +364,12 @@ class Body(Header):
         style: str
         style = line.split('#')[1].strip()
         if style:
-            return style
+            if style == 'bond':
+                return False
+            elif style == 'full':
+                return True
         else:
-            return 'full'
+            return True
 
     def get_velocities(self, line) -> None:
         # stting the nth row of the dictionary
@@ -410,7 +409,7 @@ class Body(Header):
                                            aj=i_aj,
                                            cmt=i_cmt,
                                            name=i_name
-                                           )
+                                          )
             else:
                 self.Bonds[bond_id] = dict(
                                            typ=i_typ,

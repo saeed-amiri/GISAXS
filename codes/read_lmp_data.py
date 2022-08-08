@@ -259,7 +259,7 @@ class Body(Header):
             = dict(), dict(), dict(), dict(), dict()
         Atoms, Velocities, Bonds, Angles, Dihedrals\
             = False, False, False, False, False
-        self.q_flag: bool = False  # if there are charges in columns
+        self.q_flag: bool = False  # if there are charges in rows
 
         with open(self.infile, 'r') as f:
             while True:
@@ -303,6 +303,7 @@ class Body(Header):
 
     def get_atoms(self, line) -> None:
         # stting the nth row of the dictionary
+        i_col: int  # to count the column if there is ot not charge cols
         if 'Atoms' not in line:
             line = line.split()
             line = [item for item in line if item]
@@ -356,20 +357,22 @@ class Body(Header):
                                            name=i_name
                                           )
 
-    def get_atom_style(self, line: str) -> str:
+    def get_atom_style(self, line: str) -> bool:
         """return atom style for the atoms informations
             bond: there is no charges for the system
             full: with charge column
         """
         style: str
+        flag: bool = False
         style = line.split('#')[1].strip()
         if style:
             if style == 'bond':
-                return False
+                flag = False
             elif style == 'full':
-                return True
+                flag = True
         else:
-            return True
+            flag = True
+        return flag
 
     def get_velocities(self, line) -> None:
         # stting the nth row of the dictionary

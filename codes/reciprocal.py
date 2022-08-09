@@ -25,7 +25,7 @@ class MakeReciprocal:
         del df
         tmp_arr: np.array  # To convert, temporary
         tmp_arr = df_tmp.to_numpy(dtype=float)
-        rows: int  # Number of rows in the Data file==NAtoms
+        rows: int  # Number of rows in the Data file = NAtoms
         cols: int  # Number of columns at each row, then subtract id
         reals_arr: np.array  # To save the coords based on the id
         rows, cols = tmp_arr.shape
@@ -40,5 +40,5 @@ class MakeReciprocal:
     
     def to_reciprocal(self, reals_arr: np.array) -> None:
         """transfrom data to the reciprocal space"""
-        print(reals_arr)
+        pass
 

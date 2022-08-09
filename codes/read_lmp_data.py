@@ -12,25 +12,25 @@ class FileErr:
 
 
 class Header:
-    """
-    read haeder of the data file
-    check the number of the lines, atom, bond ... informations
-    get the box , pairs, ... coefficents
-    Use this class to read the header of the file (LAMMPS data file),
-    and the file should have Masses with their name specified after (#)
-    e.g.:
-        Masses
-        1 1.008000 # H
-        2 16.000000 # OH
-        3 16.000000 # OB
-        4 28.059999 # Si
-    it will return a few attributes for the class if they existed:
-    Masses, Pair, and Angel and Dihedral coefficients. And also the name
-    of the atoms types.
-    The class BODY needs' names' to read the data file.
-    """
 
     def __init__(self, infile) -> None:
+        """
+        read haeder of the data file
+        check the number of the lines, atom, bond ... informations
+        get the box , pairs, ... coefficents
+        Use this class to read the header of the file (LAMMPS data file),
+        and the file should have Masses with their name specified after (#)
+        e.g.:
+            Masses
+            1 1.008000 # H
+            2 16.000000 # OH
+            3 16.000000 # OB
+            4 28.059999 # Si
+        it will return a few attributes for the class if they existed:
+        Masses, Pair, and Angel and Dihedral coefficients. And also the name
+        of the atoms types.
+        The class BODY needs' names' to read the data file.
+        """
         self.infile: str = infile
         print(f'{bcolors.OKCYAN}{self.__class__.__name__}:\n'
               f'\tReading: `{self.infile}`{bcolors.ENDC}\n')
@@ -45,7 +45,7 @@ class Header:
         output:
             - number of header lines
         """
-        # An integer to prevent over-reading in case of header bugs
+        # An integer to prevent over-reading in case of headers bugs
         MAXHEADER: int = 1000
         # track the number of lines in the hedaer
         linecount: int = 0
@@ -61,7 +61,8 @@ class Header:
                     exit(err.__doc__)
                 if not line:
                     exit(f'{bcolors.FAIL}{self.__class__.__name__}'
-                         f'wrong data file{bcolors.ENDC}\n')
+                         f'wrong data file{bcolors.ENDC}\n'
+                         f'{self.__class__.__doc__}\n')
         return atomsLine
 
     def read_header(self) -> None:
@@ -303,7 +304,7 @@ class Body(Header):
 
     def get_atoms(self, line) -> None:
         # stting the nth row of the dictionary
-        i_col: int  # to count the column if there is ot not charge cols
+        i_col: int  # to count the column if there is or not charge cols
         if 'Atoms' not in line:
             line = line.split()
             line = [item for item in line if item]

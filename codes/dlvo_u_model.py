@@ -44,30 +44,30 @@ class Colloid:
         from Sigma class
         d1: float,  # distance unit, particles diameters
         d2: float,  # distance unit, particles diameters
-        r_cut: flaot or list of float  # distance units, cutoff
+        r_cut: a flaot or an array of float  # distance units, cutoff
     """
     def __init__(self,
                  d1: float,  # distance unit, particles diameters
                  d2: float,  # distance unit, particles diameters
-                 r_cut: typing.Any  # distance units, cutoff, float/list
+                 r_cut: typing.Any  # distance units, cutoff, float/array
                  ) -> None:
         self.get_colloid(d1, d2, r_cut)
 
     def get_colloid(self,
                     d1: float,  # distance unit, particles diameters
                     d2: float,  # distance unit, particles diameters
-                    r_cut: typing.Any  # distance units, cutoff, float/list
+                    r_cut: typing.Any  # distance units, cutoff, float/array
                     ) -> None:
         """call all the methods to calculate the interaction"""
         a1: float = d1 / 2  # Radius of 1st particle
         a2: float = d2 / 2  # Radius of 2nd particle
-        self.colloid_colloid(a1, a2, r_cut)
+        self.U_cc = self.colloid_colloid(a1, a2, r_cut)
 
     def colloid_colloid(self,
                         a1: float,  # distance unit, particles radius
                         a2: float,  # distance unit, particles radius
-                        r_cut: typing.Any  # distance units, cutoff, float/list
-                        ) -> typing:  # float or list of float for many r_cut
+                        r_cut: typing.Any  # distance units, cutoff,float/array
+                        ) -> typing.Any:  # float or np.array
         """get colloid-colloid interaction"""
         A = Hamaker.A_CC
         sigma = Sigma.SIGMA_CC
@@ -87,10 +87,17 @@ class Colloid:
             (r2+7*r_cut*(a1+a2)+divd1) / (r_cut+a1+a2)**7 -
             (r2+7*r_cut*(a1-a2)+divd2) / (r_cut+a1-a2)**7 -
             (r2-7*r_cut*(a1-a2)+divd2) / (r_cut-a1+a2)**7)
-        U = U_a + U_r
+        return U_a + U_r
 
     def colloid_solvent(self) -> None:
         """get colloid_solvent interaction"""
 
     def solvent_solvent(self) -> None:
         """get solvent_solvent interaction"""
+
+
+if __name__ == '__main__':
+    r = [i*2/10 for i in range(10)]
+    r = np.array(r)
+    coll = Colloid(1, 10, r)
+    print(coll.U_cc)

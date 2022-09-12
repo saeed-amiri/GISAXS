@@ -20,6 +20,15 @@ class Doc:
     This script simulates all the above interactions.
     Changing the values of variables shows behavior change in the main
     interaction.
+
+    "d1 and d2 are particle diameters, so that d1 = 2*a1 and d2 = 2*a2
+    in the formulas above. Both d1 and d2 must be values >= 0.
+    If d1 > 0 and d2 > 0, then the pair interacts via the colloid-colloid
+    formula above.
+    If d1 = 0 and d2 = 0, then the pair interacts via the solvent-solvent
+    formula. I.e. a d value of 0 is a Lennard-Jones particle of size sigma.
+    If either d1 = 0 or d2 = 0 and the other is larger, then the pair
+    interacts via the colloid-solvent formula."
     """
 
 
@@ -67,7 +76,7 @@ class Colloid:
         a1: float = d1 / 2  # Radius of 1st particle
         a2: float = d2 / 2  # Radius of 2nd particle
         self.U_cc = self.colloid_colloid(a1, a2, r_cut)
-        self.U_cs = self.colloid_solvent(a1, r_cut)
+        self.U_cs = self.colloid_solvent(a2, r_cut)
         self.U_ss = self.solvent_solvent(r_cut)
 
     def colloid_colloid(self,

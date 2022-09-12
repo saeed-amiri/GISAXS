@@ -37,8 +37,7 @@ class MakeReciprocal:
             reals_arr[id][2] = tmp_arr[row][3]  # z positions
         del tmp_arr
         return reals_arr
-    
+
     def to_reciprocal(self, reals_arr: np.array) -> None:
         """transfrom data to the reciprocal space"""
         pass
-

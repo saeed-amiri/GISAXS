@@ -15,4 +15,3 @@ class Doc:
     Changing the values of variables shows behavior change in the main
     interaction.
     """
-    

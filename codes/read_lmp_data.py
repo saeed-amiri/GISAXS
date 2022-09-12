@@ -12,25 +12,25 @@ class FileErr:
 
 
 class Header:
+    """
+    read haeder of the data file
+    check the number of the lines, atom, bond ... informations
+    get the box , pairs, ... coefficents
+    Use this class to read the header of the file (LAMMPS data file),
+    and the file should have Masses with their name specified after (#)
+    e.g.:
+        Masses
+        1 1.008000 # H
+        2 16.000000 # OH
+        3 16.000000 # OB
+        4 28.059999 # Si
+    it will return a few attributes for the class if they existed:
+    Masses, Pair, and Angel and Dihedral coefficients. And also the name
+    of the atoms types.
+    The class BODY needs' names' to read the data file.
+    """
 
     def __init__(self, infile) -> None:
-        """
-        read haeder of the data file
-        check the number of the lines, atom, bond ... informations
-        get the box , pairs, ... coefficents
-        Use this class to read the header of the file (LAMMPS data file),
-        and the file should have Masses with their name specified after (#)
-        e.g.:
-            Masses
-            1 1.008000 # H
-            2 16.000000 # OH
-            3 16.000000 # OB
-            4 28.059999 # Si
-        it will return a few attributes for the class if they existed:
-        Masses, Pair, and Angel and Dihedral coefficients. And also the name
-        of the atoms types.
-        The class BODY needs' names' to read the data file.
-        """
         self.infile: str = infile
         print(f'{bcolors.OKCYAN}{self.__class__.__name__}:\n'
               f'\tReading: `{self.infile}`{bcolors.ENDC}\n')

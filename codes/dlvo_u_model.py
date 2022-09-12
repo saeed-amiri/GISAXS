@@ -1,5 +1,6 @@
 import typing
 import numpy as np
+from colors_text import TextColor as bcolors
 
 
 class Doc:
@@ -75,9 +76,21 @@ class Colloid:
         """call all the methods to calculate the interaction"""
         a1: float = d1 / 2  # Radius of 1st particle
         a2: float = d2 / 2  # Radius of 2nd particle
-        self.U_cc = self.colloid_colloid(a1, a2, r_cut)
-        self.U_cs = self.colloid_solvent(a2, r_cut)
-        self.U_ss = self.solvent_solvent(r_cut)
+        a: float  # particle size
+        if a1 > 0 and a2 > 0:
+            self.U = self.colloid_colloid(a1, a2, r_cut)
+        elif (a1 == 0 or a2 == 0) and not (a1 == 0 and a2 == 0):
+            if a1 > 0:
+                a = a1
+            elif a2 > 0:
+                a = a2
+            self.U = self.colloid_solvent(a, r_cut)
+        elif a1 == 0 and a2 == 0:
+            self.U = self.solvent_solvent(r_cut)
+        else:
+            exit(f'{bcolors.FAIL}{self.__class__.__name__}:\n'
+                 f'Wrong values for diameters{bcolors.ENDC}\n'
+                 f'{bcolors.OKGREEN}{Doc.__doc__}{bcolors.ENDC}\n')
 
     def colloid_colloid(self,
                         a1: float,  # distance unit, particles radius
@@ -89,6 +102,7 @@ class Colloid:
         as an integrated collection of Lennard-Jones particles of size
         sigma and is derived in (Everaers)."
         """
+        print(f'{bcolors.OKCYAN}Colloid-Colloid interaction{bcolors.ENDC}\n')
         A: float = Hamaker.A_CC
         sigma: float = Sigma.SIGMA_CC
         divs1: float  # 1st divisor of the equation in U_A
@@ -117,6 +131,7 @@ class Colloid:
         "This formula is derived from the colloid-colloid interaction,
         letting one of the particle sizes go to zero."
         """
+        print(f'{bcolors.OKCYAN}Colloid-Solvent interaction{bcolors.ENDC}\n')
         A: float = Hamaker.A_CS
         sigma: float = Sigma.SIGMA_CS
         # For simplification:
@@ -145,6 +160,7 @@ class Colloid:
         The solvent-solvent interaction energy is given by the usual
         Lennard-Jones formula
         """
+        print(f'{bcolors.OKCYAN}Solvent-Solvent interaction{bcolors.ENDC}\n')
         A: float = Hamaker.A_SS
         sigma: float = Sigma.SIGMA_SS
         U: typing.Any = (A/36)*(
@@ -156,5 +172,5 @@ class Colloid:
 if __name__ == '__main__':
     r = [i*2/10 for i in range(1, 10)]
     r = np.array(r)
-    coll = Colloid(1, 10, r)
-    print(coll.U_ss)
+    coll = Colloid(0, 0, r)
+    print(coll.U)

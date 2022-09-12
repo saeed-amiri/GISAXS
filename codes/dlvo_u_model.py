@@ -5,6 +5,11 @@ import numpy as np
 class Doc:
     """scripting colloid interaction in the LAMMPS colloid piar_style
     and yukawa/colloid.
+    https://docs.lammps.org/pair_colloid.html
+    "Style colloid computes pairwise interactions between large
+    colloidal particles and small solvent particles using 3 formulas.
+    A colloidal particle has a size > sigma; a solvent particle is the
+    usual Lennard-Jones particle of size sigma."
     The colloid equation is a combination of three interactions:
         - colloid-colloid interaction energy
         - colloid-solvent interaction
@@ -68,7 +73,11 @@ class Colloid:
                         a2: float,  # distance unit, particles radius
                         r_cut: typing.Any  # distance units, cutoff,float/array
                         ) -> typing.Any:  # float or np.array
-        """get colloid-colloid interaction"""
+        """get colloid-colloid interaction
+        "This equation results from describing each colloidal particle
+        as an integrated collection of Lennard-Jones particles of size
+        sigma and is derived in (Everaers)."
+        """
         A = Hamaker.A_CC
         sigma = Sigma.SIGMA_CC
         divs1: float  # 1st divisor of the equation in U_A

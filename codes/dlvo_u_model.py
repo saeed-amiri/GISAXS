@@ -1,6 +1,7 @@
 import typing
 import numpy as np
 from colors_text import TextColor as bcolors
+import matplotlib.pylab as plt
 
 
 class Doc:
@@ -170,7 +171,13 @@ class Colloid:
 
 
 if __name__ == '__main__':
-    r = [i*2/10 for i in range(1, 10)]
+    r = [i for i in range(0, 25)]
+    print(r)
     r = np.array(r)
-    coll = Colloid(0, 0, r)
-    print(coll.U)
+    d1 = 2
+    for d2 in range(2, 3):
+        coll = Colloid(d1=d1, d2=d2, r_cut=r)
+        print(coll.U)
+        u = np.nan_to_num(coll.U)
+        plt.plot(r, u)
+    plt.show()

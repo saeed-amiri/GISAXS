@@ -67,6 +67,7 @@ class Colloid:
         a1: float = d1 / 2  # Radius of 1st particle
         a2: float = d2 / 2  # Radius of 2nd particle
         self.U_cc = self.colloid_colloid(a1, a2, r_cut)
+        self.U_cs = self.colloid_solvent(a1, r_cut)
 
     def colloid_colloid(self,
                         a1: float,  # distance unit, particles radius
@@ -78,8 +79,8 @@ class Colloid:
         as an integrated collection of Lennard-Jones particles of size
         sigma and is derived in (Everaers)."
         """
-        A = Hamaker.A_CC
-        sigma = Sigma.SIGMA_CC
+        A: float = Hamaker.A_CC
+        sigma: float = Sigma.SIGMA_CC
         divs1: float  # 1st divisor of the equation in U_A
         divs2: float  # 2nd divisor of the equation in U_A
         a12: float = 2*a1*a2  # for simplification
@@ -98,8 +99,34 @@ class Colloid:
             (r2-7*r_cut*(a1-a2)+divd2) / (r_cut-a1+a2)**7)
         return U_a + U_r
 
-    def colloid_solvent(self) -> None:
-        """get colloid_solvent interaction"""
+    def colloid_solvent(self,
+                        a: float,  # distance unit, colloidal particles radius
+                        r_cut: typing.Any  # distance units, cutoff,float/array
+                        ) -> typing.Any:  # float or np.array
+        """get colloid_solvent interaction
+        "This formula is derived from the colloid-colloid interaction,
+        letting one of the particle sizes go to zero."
+        """
+        A: float = Hamaker.A_CS
+        sigma: float = Sigma.SIGMA_CS
+        # For simplification:
+        r2: float = r_cut*r_cut
+        r4: float = r2*r2
+        r6: float = r2*r4
+        a2: float = a*a
+        a3: float = a*a2
+        a4: float = a*a3
+        a6: float = a2*a4
+        s2: float = sigma*sigma
+        s3: float = sigma*s2
+        s6: float = s3*s3
+        U = (2*a3*s3*A) / (9*(a2-r2)**3)*(
+            1-(
+                (5*a6+45*a4*r2+63*a2*r4+15*r6)*s6 /
+                (15*(a-r_cut)**6*(a+r_cut)**6)
+            )
+        )
+        return U
 
     def solvent_solvent(self) -> None:
         """get solvent_solvent interaction"""
@@ -109,4 +136,4 @@ if __name__ == '__main__':
     r = [i*2/10 for i in range(10)]
     r = np.array(r)
     coll = Colloid(1, 10, r)
-    print(coll.U_cc)
+    print(coll.U_cs)

@@ -68,6 +68,7 @@ class Colloid:
         a2: float = d2 / 2  # Radius of 2nd particle
         self.U_cc = self.colloid_colloid(a1, a2, r_cut)
         self.U_cs = self.colloid_solvent(a1, r_cut)
+        self.U_ss = self.solvent_solvent(r_cut)
 
     def colloid_colloid(self,
                         a1: float,  # distance unit, particles radius
@@ -128,12 +129,23 @@ class Colloid:
         )
         return U
 
-    def solvent_solvent(self) -> None:
-        """get solvent_solvent interaction"""
+    def solvent_solvent(self,
+                        r_cut: typing.Any  # distance units, cutoff,float/array
+                        ) -> typing.Any:
+        """get solvent_solvent interaction
+        The solvent-solvent interaction energy is given by the usual
+        Lennard-Jones formula
+        """
+        A: float = Hamaker.A_SS
+        sigma: float = Sigma.SIGMA_SS
+        U: typing.Any = (A/36)*(
+            (sigma/r_cut)**12-(sigma/r_cut)**6
+        )
+        return U
 
 
 if __name__ == '__main__':
-    r = [i*2/10 for i in range(10)]
+    r = [i*2/10 for i in range(1, 10)]
     r = np.array(r)
     coll = Colloid(1, 10, r)
-    print(coll.U_cs)
+    print(coll.U_ss)

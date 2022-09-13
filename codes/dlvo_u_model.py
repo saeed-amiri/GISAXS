@@ -194,6 +194,31 @@ class Colloid:
         return U
 
 
+class Yukawa:
+    """
+    "In contrast to pair_style yukawa, this functional form arises
+    from the Coulombic interaction between two colloid particles,
+    screened due to the presence of an electrolyte,
+    This potential applies to nearby particle pairs for which the
+    Derjagin approximation holds, meaning , where h is the surface-to-
+    surface separation of the two particles."
+    """
+    def __init__(self,
+                 r: typing.Any  # float or an array of a float
+                 ) -> None:
+        pass
+
+    def prefactor_A(self) -> float:
+        """The prefactor A is determined from the relationship between
+        surface charge and surface potential due to the presence of
+        electrolyte"""
+        R: float  # distance unit, colloid radius
+        epsilon_0: float  # q^2/energy/distance units, permittivity free space
+        epsilon: float  # dimensionless, relative permittivity of fluid medium
+        kappa: float  # 1/distance units, inverse screening length
+        psi: float  # energy/q units, surface potential
+
+
 if __name__ == '__main__':
     width = 426.79135
     font = {'weight': 'normal',
@@ -203,9 +228,9 @@ if __name__ == '__main__':
     d1: int  # Diameter of particle
     r: np.array  # radios which energy os calculated for it
     n = 0
-    for d2 in range(n+1, n+5):
+    for d2 in range(n+1, n+2):
         _, ax = plt.subplots(1, figsize=set_sizes(width))
-        for d1 in range(d2+1, d2+6):
+        for d1 in range(d2+1, d2+2):
             r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
@@ -218,5 +243,5 @@ if __name__ == '__main__':
             plt.legend()
         plt.xlabel('r')
         plt.ylabel('U')
-        outname = f'CC_d2_{d2}.png'
+        outname = f'SS.png'
         plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')

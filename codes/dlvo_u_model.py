@@ -2,6 +2,7 @@ import typing
 import numpy as np
 from colors_text import TextColor as bcolors
 import matplotlib.pylab as plt
+import matplotlib
 
 
 class Doc:
@@ -32,6 +33,17 @@ class Doc:
     If either d1 = 0 or d2 = 0 and the other is larger, then the pair
     interacts via the colloid-solvent formula."
     """
+
+
+def set_sizes(width, fraction=1) -> tuple[float, float]:
+    """set figure dimennsion"""
+    fig_width_pt = width*fraction
+    inches_per_pt = 1/72.27
+    golden_ratio = (5**0.5 - 1)/2
+    fig_width_in = fig_width_pt * inches_per_pt
+    fig_height_in = fig_width_in * golden_ratio*0.66
+    fig_dim = (fig_width_in, fig_height_in)
+    return fig_dim
 
 
 class Hamaker:
@@ -170,30 +182,41 @@ class Colloid:
         The solvent-solvent interaction energy is given by the usual
         Lennard-Jones formula
         """
-        print(f'{bcolors.OKCYAN}Solvent-Solvent interaction{bcolors.ENDC}\n')
+        print(f'{bcolors.OKCYAN}Solvent-Solvent interaction{bcolors.ENDC}\n'
+              f'\t{bcolors.OKBLUE}sigam={Sigma.SIGMA_SS}{bcolors.ENDC}')
         A: float = Hamaker.A_SS
         sigma: float = Sigma.SIGMA_SS
         U: typing.Any = (A/36)*(
             (sigma/r_cut)**12-(sigma/r_cut)**6
         )
+        print(f'{bcolors.OKCYAN}\tmin: U={np.min(U):.3e}, '
+              f'max:U={np.max(U):.3e}\n{bcolors.ENDC}')
         return U
 
 
 if __name__ == '__main__':
+    width = 426.79135
+    font = {'weight': 'normal',
+            'size': 13}
+    matplotlib.rc('font', **font)
     d2: int  # Diameter of particle
     d1: int  # Diameter of particle
     r: np.array  # radios which energy os calculated for it
-    for d2 in range(1, 2):
-        d2 = 0
-        for d1 in range(d2+1, 10):
+    n = 0
+    for d2 in range(n+1, n+5):
+        _, ax = plt.subplots(1, figsize=set_sizes(width))
+        for d1 in range(d2+1, d2+6):
             r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
             u = np.nan_to_num(coll.U)
             if d2 == 0:
-                label = f'd={d1}'
+                label = f'$d=${d1}'
             else:
-                label = f'd1={d1}, d2={d2}'
+                label = f'$d_1=${d1},  $d_2=${d2}'
             plt.plot(r, u, label=label)
             plt.legend()
-    plt.show()
+        plt.xlabel('r')
+        plt.ylabel('U')
+        outname = f'CC_d2_{d2}.png'
+        plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')

@@ -123,10 +123,10 @@ class Colloid:
             (r2+7*r_cut*(a1+a2)+divd1) / (r_cut+a1+a2)**7 -
             (r2+7*r_cut*(a1-a2)+divd2) / (r_cut+a1-a2)**7 -
             (r2-7*r_cut*(a1-a2)+divd2) / (r_cut-a1+a2)**7)
-        print(f'{bcolors.OKCYAN}\tmin: U_R={np.min(np.abs(U_r)):.3e}, '
-              f'U_A={np.min(np.abs(U_a)):.3e}\n'
-              f'\tmax: U_R={np.max(np.abs(U_r)):.3e}, '
-              f'U_A={np.max(np.abs(U_a)):.3e}\n{bcolors.ENDC}')
+        print(f'{bcolors.OKCYAN}\tmin: U_R={np.min(U_r):.3e}, '
+              f'U_A={np.min(U_a):.3e}\n'
+              f'\tmax: U_R={np.max(U_r):.3e}, '
+              f'U_A={np.max(U_a):.3e}\n{bcolors.ENDC}')
         return U_a + U_r
 
     def colloid_solvent(self,
@@ -137,7 +137,9 @@ class Colloid:
         "This formula is derived from the colloid-colloid interaction,
         letting one of the particle sizes go to zero."
         """
-        print(f'{bcolors.OKCYAN}Colloid-Solvent interaction{bcolors.ENDC}\n')
+        print(f'{bcolors.OKCYAN}Colloid-Solvent interaction{bcolors.ENDC}\n'
+              f'\t{bcolors.OKBLUE}d={2*a}, sigam={Sigma.SIGMA_CS}'
+              f'{bcolors.ENDC}')
         A: float = Hamaker.A_CS
         sigma: float = Sigma.SIGMA_CS
         # For simplification:
@@ -157,6 +159,8 @@ class Colloid:
                 (15*(a-r_cut)**6*(a+r_cut)**6)
             )
         )
+        print(f'{bcolors.OKCYAN}\tmin: U={np.min(U):.3e}, '
+              f'max:U={np.max(U):.3e}\n{bcolors.ENDC}')
         return U
 
     def solvent_solvent(self,
@@ -176,13 +180,20 @@ class Colloid:
 
 
 if __name__ == '__main__':
+    d2: int  # Diameter of particle
+    d1: int  # Diameter of particle
+    r: np.array  # radios which energy os calculated for it
     for d2 in range(1, 2):
-        # d2=0
+        d2 = 0
         for d1 in range(d2+1, 10):
-            r = [i/10 for i in range((d1+d2+1)*10, 260)]
+            r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
             u = np.nan_to_num(coll.U)
-            plt.plot(r, u, label=f'd1={d1}, d2={d2}')
+            if d2 == 0:
+                label = f'd={d1}'
+            else:
+                label = f'd1={d1}, d2={d2}'
+            plt.plot(r, u, label=label)
             plt.legend()
     plt.show()

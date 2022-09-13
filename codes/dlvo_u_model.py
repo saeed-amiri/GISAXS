@@ -239,15 +239,23 @@ class Yukawa:
 if __name__ == '__main__':
     width = 426.79135
     font = {'weight': 'normal',
-            'size': 13}
+            'size': 12}
     matplotlib.rc('font', **font)
     d2: int  # Diameter of particle
     d1: int  # Diameter of particle
     r: np.array  # radios which energy os calculated for it
     n = 0
-    for d2 in range(n+1, n+2):
+    for d2 in range(n+1, n+3):
         _, ax = plt.subplots(1, figsize=set_sizes(width))
-        for d1 in range(d2+1, d2+2):
+        ax.ticklabel_format(useOffset=True)
+        ax.yaxis.get_major_formatter().set_powerlimits((0, 1))
+        plt.locator_params(axis='x', nbins=5)
+        plt.locator_params(axis='y', nbins=3)
+        ax.xaxis.set_major_locator(plt.MaxNLocator(5))
+        ax.yaxis.set_major_locator(plt.MaxNLocator(3))
+        ax.set_ylim(-6e-3, 1e-4)
+        ax.set_xlim(3.5, 20)
+        for d1 in range(d2+1, d2+3):
             r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
@@ -256,9 +264,9 @@ if __name__ == '__main__':
                 label = f'$d=${d1}'
             else:
                 label = f'$d_1=${d1},  $d_2=${d2}'
-            plt.plot(r, u, label=label)
+            ax.plot(r, u, label=label)
             plt.legend()
-        plt.xlabel('r')
-        plt.ylabel('U')
-        outname = f'SS.png'
+        plt.xlabel(r'$r$')
+        plt.ylabel(r'$U$')
+        outname = f'test{d2}.png'
         plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')

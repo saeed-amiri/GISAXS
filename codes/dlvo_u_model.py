@@ -47,7 +47,7 @@ class Sigma:
     particles integrated over in the colloidal particle and should
     typically be set as follows:
     """
-    SIGMA_CC: float = 1.0  # colloid-colloid
+    SIGMA_CC: float = 0.0  # colloid-colloid
     SIGMA_SS: float = 1.0  # colloid-solvent,arithmetic mixing colloid&solvent
     SIGMA_CS: float = 1.0  # solvent-solvent or size of  the solvent particle
 
@@ -171,13 +171,15 @@ class Colloid:
 
 
 if __name__ == '__main__':
-    r = [i for i in range(0, 25)]
+    r = [i/10 for i in range(0, 25)]
     print(r)
     r = np.array(r)
-    d1 = 2
-    for d2 in range(2, 3):
+    d1 = 0.1
+    for d2 in range(1, 2):
         coll = Colloid(d1=d1, d2=d2, r_cut=r)
         print(coll.U)
+        print(np.argwhere(np.isnan(coll.U)))
         u = np.nan_to_num(coll.U)
         plt.plot(r, u)
+        print(u)
     plt.show()

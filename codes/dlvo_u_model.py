@@ -204,19 +204,36 @@ class Yukawa:
     surface separation of the two particles."
     """
     def __init__(self,
-                 r: typing.Any  # float or an array of a float
+                 kappa: float,  # inverse screening length
+                 r: typing.Any  # float or an array of floats
                  ) -> None:
-        pass
+        A = self.prefactor_A(kappa)
+        self.U = self.get_yukawa(A, r)
 
-    def prefactor_A(self) -> float:
+    def prefactor_A(self,
+                    kappa: float  # 1/distance units, inverse screening length
+                    ) -> float:
         """The prefactor A is determined from the relationship between
         surface charge and surface potential due to the presence of
         electrolyte"""
-        R: float  # distance unit, colloid radius
         epsilon_0: float  # q^2/energy/distance units, permittivity free space
         epsilon: float  # dimensionless, relative permittivity of fluid medium
-        kappa: float  # 1/distance units, inverse screening length
         psi: float  # energy/q units, surface potential
+        R: float  # distance unit, colloid radius
+        A: float = R*epsilon_0*epsilon*kappa*psi**2
+        return A
+
+    def get_yukawa(self,
+                   A: float,  # prefactor of the equation
+                   r: typing.Any,  # float or an array of floats
+                   kappa: float  # 1/distance units, inverse screening length
+                   ) -> typing.Any:  # float or an array of floats
+        """get yukawa potential"""
+        A: float  # prefactor of the potential
+        r1: float  # radius of the 1st particle
+        r2: float  # radius of the 2nd particle
+        U = (A/kappa)*np.exp(-kappa*(r-(r1+r2)))
+        return U
 
 
 if __name__ == '__main__':

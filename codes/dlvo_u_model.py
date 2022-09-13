@@ -47,7 +47,7 @@ class Sigma:
     particles integrated over in the colloidal particle and should
     typically be set as follows:
     """
-    SIGMA_CC: float = 0.0  # colloid-colloid
+    SIGMA_CC: float = 1.0  # colloid-colloid
     SIGMA_SS: float = 1.0  # colloid-solvent,arithmetic mixing colloid&solvent
     SIGMA_CS: float = 1.0  # solvent-solvent or size of  the solvent particle
 
@@ -103,7 +103,8 @@ class Colloid:
         as an integrated collection of Lennard-Jones particles of size
         sigma and is derived in (Everaers)."
         """
-        print(f'{bcolors.OKCYAN}Colloid-Colloid interaction{bcolors.ENDC}\n')
+        print(f'{bcolors.OKCYAN}Colloid-Colloid interaction:{bcolors.ENDC}\n'
+              f'\t{bcolors.OKBLUE}d1={2*a1}, d2={2*a2}{bcolors.ENDC}')
         A: float = Hamaker.A_CC
         sigma: float = Sigma.SIGMA_CC
         divs1: float  # 1st divisor of the equation in U_A
@@ -122,6 +123,10 @@ class Colloid:
             (r2+7*r_cut*(a1+a2)+divd1) / (r_cut+a1+a2)**7 -
             (r2+7*r_cut*(a1-a2)+divd2) / (r_cut+a1-a2)**7 -
             (r2-7*r_cut*(a1-a2)+divd2) / (r_cut-a1+a2)**7)
+        print(f'{bcolors.OKCYAN}\tmin: U_R={np.min(np.abs(U_r)):.3e}, '
+              f'U_A={np.min(np.abs(U_a)):.3e}\n'
+              f'\tmax: U_R={np.max(np.abs(U_r)):.3e}, '
+              f'U_A={np.max(np.abs(U_a)):.3e}\n{bcolors.ENDC}')
         return U_a + U_r
 
     def colloid_solvent(self,
@@ -171,15 +176,13 @@ class Colloid:
 
 
 if __name__ == '__main__':
-    r = [i/10 for i in range(0, 25)]
-    print(r)
-    r = np.array(r)
-    d1 = 0.1
     for d2 in range(1, 2):
-        coll = Colloid(d1=d1, d2=d2, r_cut=r)
-        print(coll.U)
-        print(np.argwhere(np.isnan(coll.U)))
-        u = np.nan_to_num(coll.U)
-        plt.plot(r, u)
-        print(u)
+        # d2=0
+        for d1 in range(d2+1, 10):
+            r = [i/10 for i in range((d1+d2+1)*10, 260)]
+            r = np.array(r)
+            coll = Colloid(d1=d1, d2=d2, r_cut=r)
+            u = np.nan_to_num(coll.U)
+            plt.plot(r, u, label=f'd1={d1}, d2={d2}')
+            plt.legend()
     plt.show()

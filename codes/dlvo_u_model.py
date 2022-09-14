@@ -245,7 +245,7 @@ if __name__ == '__main__':
     d1: int  # Diameter of particle
     r: np.array  # radios which energy os calculated for it
     n = 0
-    for d2 in range(n+1, n+3):
+    for d2 in range(n+1, n+6):
         _, ax = plt.subplots(1, figsize=set_sizes(width))
         ax.ticklabel_format(useOffset=True)
         ax.yaxis.get_major_formatter().set_powerlimits((0, 1))
@@ -253,9 +253,9 @@ if __name__ == '__main__':
         plt.locator_params(axis='y', nbins=3)
         ax.xaxis.set_major_locator(plt.MaxNLocator(5))
         ax.yaxis.set_major_locator(plt.MaxNLocator(3))
-        ax.set_ylim(-6e-3, 1e-4)
+        ax.set_ylim(-8e-3, 1e-4)
         ax.set_xlim(3.5, 20)
-        for d1 in range(d2+1, d2+3):
+        for d1 in range(d2+1, d2+5):
             r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
@@ -266,7 +266,8 @@ if __name__ == '__main__':
                 label = f'$d_1=${d1},  $d_2=${d2}'
             ax.plot(r, u, label=label)
             plt.legend()
+        plt.grid(ls=':', alpha=1)
         plt.xlabel(r'$r$')
         plt.ylabel(r'$U$')
-        outname = f'test{d2}.png'
+        outname = f'CC_d2_{d2}.png'
         plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')

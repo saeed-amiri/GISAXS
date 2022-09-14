@@ -205,10 +205,14 @@ class Yukawa:
     """
     def __init__(self,
                  kappa: float,  # inverse screening length
-                 r: typing.Any  # float or an array of floats
+                 r: typing.Any,  # float or an array of floats
+                 d1: float,  # daiameter of the 1st particle
+                 d2: float  # daiameter of the 2nd particle
                  ) -> None:
         A = self.prefactor_A(kappa)
-        self.U = self.get_yukawa(A, r)
+        a1: float = d1/2  # radius of the 1st particle
+        a2: float = d2/2  # radius of the 1st particle
+        self.U = self.get_yukawa(A, r, kappa, a1, a2)
 
     def prefactor_A(self,
                     kappa: float  # 1/distance units, inverse screening length
@@ -216,23 +220,22 @@ class Yukawa:
         """The prefactor A is determined from the relationship between
         surface charge and surface potential due to the presence of
         electrolyte"""
-        epsilon_0: float  # q^2/energy/distance units, permittivity free space
-        epsilon: float  # dimensionless, relative permittivity of fluid medium
-        psi: float  # energy/q units, surface potential
-        R: float  # distance unit, colloid radius
+        epsilon_0: float = 1  # q^2/E/distance units, permittivity free space
+        epsilon: float = 1  # dimensionless, relative permittivity of fluid
+        psi: float = 1  # energy/q units, surface potential
+        R: float = 1  # distance unit, colloid radius
         A: float = R*epsilon_0*epsilon*kappa*psi**2
         return A
 
     def get_yukawa(self,
                    A: float,  # prefactor of the equation
                    r: typing.Any,  # float or an array of floats
-                   kappa: float  # 1/distance units, inverse screening length
+                   kappa: float,  # 1/distance units, inverse screening length
+                   a1: float,  # radius of the 1st particle
+                   a2: float  # radius of the 2nd particle
                    ) -> typing.Any:  # float or an array of floats
         """get yukawa potential"""
-        A: float  # prefactor of the potential
-        r1: float  # radius of the 1st particle
-        r2: float  # radius of the 2nd particle
-        U = (A/kappa)*np.exp(-kappa*(r-(r1+r2)))
+        U = (A/kappa)*np.exp(-kappa*(r-(a1+a2)))
         return U
 
 
@@ -245,29 +248,36 @@ if __name__ == '__main__':
     d1: int  # Diameter of particle
     r: np.array  # radios which energy os calculated for it
     n = 0
-    for d2 in range(n+1, n+6):
+    for d2 in range(n+1, n+2):
+        # d2=0
         _, ax = plt.subplots(1, figsize=set_sizes(width))
         ax.ticklabel_format(useOffset=True)
         ax.yaxis.get_major_formatter().set_powerlimits((0, 1))
         plt.locator_params(axis='x', nbins=5)
         plt.locator_params(axis='y', nbins=3)
-        ax.xaxis.set_major_locator(plt.MaxNLocator(5))
+        ax.xaxis.set_major_locator(plt.MaxNLocator(6))
         ax.yaxis.set_major_locator(plt.MaxNLocator(3))
-        ax.set_ylim(-8e-3, 1e-4)
-        ax.set_xlim(3.5, 20)
-        for d1 in range(d2+1, d2+5):
+        # ax.set_ylim(-8e-3, 1e-4)
+        ax.set_xlim(-1, 20)
+        for d1 in range(d2+1, d2+2):
+            # d1=0
             r = [i/10 for i in range((d1+d2+1)*10, 200)]
             r = np.array(r)
             coll = Colloid(d1=d1, d2=d2, r_cut=r)
             u = np.nan_to_num(coll.U)
-            if d2 == 0:
+            if (d2 == 0 or d1 == 0) and not (d2 == 0 and d1 == 0):
                 label = f'$d=${d1}'
+            if d1 == 0 and d2 == 0:
+                label = f'$\sigma$={Sigma.SIGMA_SS}'
             else:
                 label = f'$d_1=${d1},  $d_2=${d2}'
             ax.plot(r, u, label=label)
+        # plt.grid(ls=':', alpha=1)
+        # plt.xlabel(r'$r$')
+        # plt.ylabel(r'$U$')
+        # outname = f'SS.png'
+        # plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')
+            yuka = Yukawa(kappa=1, r=r, d1=d1, d2=d2)
+            ax.plot(r, yuka.U, label='yukawa')
             plt.legend()
-        plt.grid(ls=':', alpha=1)
-        plt.xlabel(r'$r$')
-        plt.ylabel(r'$U$')
-        outname = f'CC_d2_{d2}.png'
-        plt.savefig(outname, dpi=300, transparent=True, bbox_inches='tight')
+            plt.show()
